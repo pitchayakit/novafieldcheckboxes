@@ -13489,6 +13489,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 
 
@@ -13496,6 +13497,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     mixins: [__WEBPACK_IMPORTED_MODULE_0_laravel_nova__["FormField"], __WEBPACK_IMPORTED_MODULE_0_laravel_nova__["HandlesValidationErrors"]],
 
     props: ['resourceName', 'resourceId', 'field'],
+
+    data: function data() {
+        return {
+            developmentOptions: []
+        };
+    },
+    created: function created() {},
+
 
     methods: {
         isChecked: function isChecked(option) {
@@ -13519,6 +13528,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
          */
         setInitialValue: function setInitialValue() {
             this.value = this.field.value || [];
+
+            if (this.resourceName == 'properties' && this.field.extraAttributes) {
+                if (this.field.extraAttributes.developmentId) this.getDevelopmentOptions();
+            }
         },
 
 
@@ -13535,6 +13548,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
          */
         handleChange: function handleChange(value) {
             this.value = value;
+        },
+        getDevelopmentOptions: function getDevelopmentOptions() {
+            var _this = this;
+
+            Nova.request('/api/developments/' + this.field.extraAttributes.developmentId + '/facilities?type=Nearby').then(function (data) {
+                _this.developmentOptions = data.data;
+                if (_this.developmentOptions) {
+                    _this.developmentOptions = _this.developmentOptions.map(String);
+                    _this.value = _this.value.concat(_this.developmentOptions);
+                }
+            });
+        },
+        isDisabled: function isDisabled(option) {
+            return this.developmentOptions ? this.developmentOptions.includes(option) : false;
         }
     }
 });
@@ -39899,7 +39926,11 @@ var render = function() {
               [
                 _c("checkbox", {
                   staticClass: "mr-2",
-                  attrs: { value: option, checked: _vm.isChecked(option) },
+                  attrs: {
+                    value: option,
+                    checked: _vm.isChecked(option),
+                    disabled: _vm.isDisabled(option)
+                  },
                   on: {
                     input: function($event) {
                       return _vm.toggleOption(option)

@@ -14,6 +14,7 @@
                         :value="option"
                         :checked="isChecked(option)"
                         @input="toggleOption(option)"
+                        :disabled="isDisabled(option)"
                         class="mr-2"
                     />
                     <label
@@ -39,6 +40,16 @@ export default {
 
     props: ['resourceName', 'resourceId', 'field'],
 
+    data () {
+        return {
+            developmentOptions: [],
+        }
+    },
+
+    created () {
+
+    },
+
     methods: {
         isChecked(option) {
             return this.value ? this.value.includes(option) : false
@@ -59,6 +70,12 @@ export default {
          */
         setInitialValue() {
           this.value = this.field.value || []
+            
+          if(this.resourceName == 'properties' && this.field.extraAttributes) {
+              if(this.field.extraAttributes.developmentId)
+                this.getDevelopmentOptions();
+          }
+
         },
 
         /**
@@ -73,7 +90,21 @@ export default {
          */
         handleChange(value) {
           this.value = value
-        }
+        },
+
+        getDevelopmentOptions() {
+            Nova.request(`/api/developments/${this.field.extraAttributes.developmentId}/facilities?type=Nearby`).then((data) => {
+                this.developmentOptions = data.data
+                if(this.developmentOptions) {
+                    this.developmentOptions = this.developmentOptions.map(String)
+                    this.value = this.value.concat(this.developmentOptions)
+                }   
+          });
+        },
+
+        isDisabled(option){
+            return this.developmentOptions ? this.developmentOptions.includes(option) : false
+        },
     }
 }
 </script>
