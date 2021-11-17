@@ -13520,12 +13520,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 if (_this.componentIsDependency(component)) {
                     if (component.selectedResourceId !== undefined) {
                         // BelongsTo field
-                        component.$watch('selectedResourceId', _this.dependencyWatcher, { immediate: true });
-                        _this.dependencyWatcher(component.selectedResourceId);
-                    } else if (component.value !== undefined) {
-                        // Text based fields
-                        component.$watch('value', _this.dependencyWatcher, { immediate: true });
-                        _this.dependencyWatcher(component.value);
+                        component.$watch('selectedResourceId', _this.dependencyWatcher);
                     }
                 }
                 _this.registerDependencyWatchers(component);
@@ -13542,6 +13537,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             var _this2 = this;
 
             clearTimeout(this.watcherDebounce);
+
             this.watcherDebounce = setTimeout(function () {
                 if (value === _this2.dependsOnValue) {
                     return;

@@ -60,13 +60,8 @@ export default {
                 if (this.componentIsDependency(component)) {
                     if (component.selectedResourceId !== undefined) {
                         // BelongsTo field
-                        component.$watch('selectedResourceId', this.dependencyWatcher, {immediate: true});
-                        this.dependencyWatcher(component.selectedResourceId);
-                    } else if (component.value !== undefined) {
-                        // Text based fields
-                        component.$watch('value', this.dependencyWatcher, {immediate: true});
-                        this.dependencyWatcher(component.value);
-                    }
+                        component.$watch('selectedResourceId', this.dependencyWatcher);
+                    } 
                 }
                 this.registerDependencyWatchers(component);
             })
@@ -82,6 +77,7 @@ export default {
 
         dependencyWatcher(value) {
             clearTimeout(this.watcherDebounce);
+            
             this.watcherDebounce = setTimeout(() => {
                 if (value === this.dependsOnValue) {
                     return;
