@@ -51,7 +51,8 @@ export default {
     },
 
     created () {
-        this.registerDependencyWatchers(this.$root);
+        if(this.resourceName === 'properties')
+            this.registerDependencyWatchers(this.$root);
     },
 
     methods: {
