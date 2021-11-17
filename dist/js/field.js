@@ -13443,7 +13443,7 @@ exports = module.exports = __webpack_require__(2)(false);
 
 
 // module
-exports.push([module.i, "\n.max-col-2 {\n    -moz-column-count: 2;\n    -webkit-column-count: 2;\n    column-count: 2;\n    white-space: nowrap;\n}\n", ""]);
+exports.push([module.i, "\n.max-col-2 {\n    -moz-column-count: 2;\n    -webkit-column-count: 2;\n    column-count: 2;\n    white-space: nowrap;\n}\n.text-gray {\n    color: gray;\n}\n", ""]);
 
 // exports
 
@@ -13490,6 +13490,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 
 
@@ -13500,13 +13501,58 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
     data: function data() {
         return {
-            developmentOptions: []
+            developmentOptions: [],
+            dependsOnValue: null,
+            watcherDebounce: null,
+            watcherDebounceTimeout: 200
         };
     },
-    created: function created() {},
+    created: function created() {
+        this.registerDependencyWatchers(this.$root);
+    },
 
 
     methods: {
+        registerDependencyWatchers: function registerDependencyWatchers(root) {
+            var _this = this;
+
+            root.$children.forEach(function (component) {
+                if (_this.componentIsDependency(component)) {
+                    if (component.selectedResourceId !== undefined) {
+                        // BelongsTo field
+                        component.$watch('selectedResourceId', _this.dependencyWatcher, { immediate: true });
+                        _this.dependencyWatcher(component.selectedResourceId);
+                    } else if (component.value !== undefined) {
+                        // Text based fields
+                        component.$watch('value', _this.dependencyWatcher, { immediate: true });
+                        _this.dependencyWatcher(component.value);
+                    }
+                }
+                _this.registerDependencyWatchers(component);
+            });
+        },
+        componentIsDependency: function componentIsDependency(component) {
+            if (component.field === undefined) {
+                return false;
+            }
+
+            return component.field.attribute === 'development';
+        },
+        dependencyWatcher: function dependencyWatcher(value) {
+            var _this2 = this;
+
+            clearTimeout(this.watcherDebounce);
+            this.watcherDebounce = setTimeout(function () {
+                if (value === _this2.dependsOnValue) {
+                    return;
+                }
+
+                _this2.dependsOnValue = value;
+                _this2.getDevelopmentOptions(value);
+
+                _this2.watcherDebounce = null;
+            }, this.watcherDebounceTimeout);
+        },
         isChecked: function isChecked(option) {
             return this.value ? this.value.includes(option) : false;
         },
@@ -13528,10 +13574,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
          */
         setInitialValue: function setInitialValue() {
             this.value = this.field.value || [];
-
-            if (this.resourceName == 'properties' && this.field.extraAttributes) {
-                if (this.field.extraAttributes.developmentId) this.getDevelopmentOptions();
-            }
         },
 
 
@@ -13549,14 +13591,25 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         handleChange: function handleChange(value) {
             this.value = value;
         },
-        getDevelopmentOptions: function getDevelopmentOptions() {
-            var _this = this;
+        getDevelopmentOptions: function getDevelopmentOptions(developmentId) {
+            var _this3 = this;
 
-            Nova.request('/api/developments/' + this.field.extraAttributes.developmentId + '/facilities?type=Nearby').then(function (data) {
-                _this.developmentOptions = data.data;
-                if (_this.developmentOptions) {
-                    _this.developmentOptions = _this.developmentOptions.map(String);
-                    _this.value = _this.value.concat(_this.developmentOptions);
+            Nova.request('/api/developments/' + developmentId + '/facilities?type=Nearby').then(function (data) {
+                //Remove pre-checked of checkboxes
+                if (_this3.developmentOptions) {
+                    var optionDifference = _this3.value.filter(function (value) {
+                        return !_this3.developmentOptions.includes(value);
+                    });
+                    _this3.value = optionDifference;
+                }
+
+                //Update development options
+                _this3.developmentOptions = data.data;
+
+                //Add pre-checked of checkboxes
+                if (_this3.developmentOptions) {
+                    _this3.developmentOptions = _this3.developmentOptions.map(String);
+                    _this3.value = _this3.value.concat(_this3.developmentOptions);
                 }
             });
         },
@@ -39926,6 +39979,7 @@ var render = function() {
               [
                 _c("checkbox", {
                   staticClass: "mr-2",
+                  class: _vm.isDisabled(option) ? "text-gray" : "",
                   attrs: {
                     value: option,
                     checked: _vm.isChecked(option),

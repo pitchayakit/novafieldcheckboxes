@@ -15,6 +15,7 @@
                         :checked="isChecked(option)"
                         @input="toggleOption(option)"
                         :disabled="isDisabled(option)"
+                        :class="isDisabled(option) ? 'text-gray' : ''"
                         class="mr-2"
                     />
                     <label
@@ -43,14 +44,56 @@ export default {
     data () {
         return {
             developmentOptions: [],
+            dependsOnValue: null,
+            watcherDebounce: null,
+            watcherDebounceTimeout: 200,
         }
     },
 
     created () {
-
+        this.registerDependencyWatchers(this.$root);
     },
 
     methods: {
+        registerDependencyWatchers(root) {
+            root.$children.forEach(component => {
+                if (this.componentIsDependency(component)) {
+                    if (component.selectedResourceId !== undefined) {
+                        // BelongsTo field
+                        component.$watch('selectedResourceId', this.dependencyWatcher, {immediate: true});
+                        this.dependencyWatcher(component.selectedResourceId);
+                    } else if (component.value !== undefined) {
+                        // Text based fields
+                        component.$watch('value', this.dependencyWatcher, {immediate: true});
+                        this.dependencyWatcher(component.value);
+                    }
+                }
+                this.registerDependencyWatchers(component);
+            })
+        },
+
+        componentIsDependency(component) {
+            if (component.field === undefined) {
+                return false;
+            }
+
+            return component.field.attribute === 'development';
+        },
+
+        dependencyWatcher(value) {
+            clearTimeout(this.watcherDebounce);
+            this.watcherDebounce = setTimeout(() => {
+                if (value === this.dependsOnValue) {
+                    return;
+                }
+
+                this.dependsOnValue = value;
+                this.getDevelopmentOptions(value)
+
+                this.watcherDebounce = null;
+            }, this.watcherDebounceTimeout);
+        },
+
         isChecked(option) {
             return this.value ? this.value.includes(option) : false
         },
@@ -70,12 +113,6 @@ export default {
          */
         setInitialValue() {
           this.value = this.field.value || []
-            
-          if(this.resourceName == 'properties' && this.field.extraAttributes) {
-              if(this.field.extraAttributes.developmentId)
-                this.getDevelopmentOptions();
-          }
-
         },
 
         /**
@@ -92,9 +129,18 @@ export default {
           this.value = value
         },
 
-        getDevelopmentOptions() {
-            Nova.request(`/api/developments/${this.field.extraAttributes.developmentId}/facilities?type=Nearby`).then((data) => {
+        getDevelopmentOptions(developmentId) {
+            Nova.request(`/api/developments/${developmentId}/facilities?type=Nearby`).then((data) => {
+                //Remove pre-checked of checkboxes
+                if(this.developmentOptions) {
+                    let optionDifference = this.value.filter(value => !this.developmentOptions.includes(value));
+                    this.value = optionDifference
+                }
+
+                //Update development options
                 this.developmentOptions = data.data
+                
+                //Add pre-checked of checkboxes
                 if(this.developmentOptions) {
                     this.developmentOptions = this.developmentOptions.map(String)
                     this.value = this.value.concat(this.developmentOptions)
@@ -115,5 +161,9 @@ export default {
         -webkit-column-count: 2;
         column-count: 2;
         white-space: nowrap;
+    }
+
+    .text-gray {
+        color: gray;
     }
 </style>
