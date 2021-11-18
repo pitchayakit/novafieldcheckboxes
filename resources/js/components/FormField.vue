@@ -51,7 +51,7 @@ export default {
     },
 
     created () {
-        if(this.resourceName === 'properties')
+        if(this.resourceName === 'properties' && this.field.attribute === 'nearby_facility_checkboxes')
             this.registerDependencyWatchers(this.$root);
     },
 

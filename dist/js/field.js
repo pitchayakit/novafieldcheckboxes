@@ -13508,7 +13508,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         };
     },
     created: function created() {
-        if (this.resourceName === 'properties') this.registerDependencyWatchers(this.$root);
+        if (this.resourceName === 'properties' && this.field.attribute === 'nearby_facility_checkboxes') this.registerDependencyWatchers(this.$root);
     },
 
 
