@@ -6,22 +6,22 @@
                 class="w-full max-col-2"
             >
                 <div
-                    v-for="(label, option) in field.options"
-                    :key="option"
+                    v-for="(option) in options"
+                    :key="option.id"
                     class="flex mb-2"
                 >
                     <checkbox
-                        :value="option"
-                        :checked="isChecked(option)"
-                        @input="toggleOption(option)"
-                        :disabled="isDisabled(option)"
-                        :class="isDisabled(option) ? 'text-gray' : ''"
+                        :value="option.id"
+                        :checked="isChecked(option.id)"
+                        @input="toggleOption(option.id)"
+                        :disabled="isDisabled(option.id)"
+                        :class="isDisabled(option.id) ? 'text-gray' : ''"
                         class="mr-2"
                     />
                     <label
                         :for="field.name"
-                        v-text="label"
-                        @click="toggleOption(option)"
+                        v-text="option.value"
+                        @click="toggleOption(option.id)"
                         class="w-full leading-tight"
                     ></label>
                 </div>
@@ -53,15 +53,29 @@ export default {
     created () {
         if(this.resourceName === 'properties' && this.field.attribute === 'nearby_facility_checkboxes')
             this.registerDependencyWatchers(this.$root);
+
+        this.options = Object.keys(
+            this.field.options
+        ).map((key) => {
+            return { id: key, value: this.field.options[key] };
+        });
+
+        this.options.sort(function(a,b) {
+            var x = a.value.toLowerCase();
+            var y = b.value.toLowerCase();
+            return x < y ? -1 : x > y ? 1 : 0;
+        });
     },
 
     methods: {
         registerDependencyWatchers(root) {
+            
             root.$children.forEach(component => {
                 if (this.componentIsDependency(component)) {
                     if (component.selectedResourceId !== undefined) {
+
                         // BelongsTo field
-                        component.$watch('selectedResourceId', this.dependencyWatcher);
+                        component.$watch('selectedResource', this.dependencyWatcher);
                     } 
                 }
                 this.registerDependencyWatchers(component);
@@ -76,16 +90,16 @@ export default {
             return component.field.attribute === 'development';
         },
 
-        dependencyWatcher(value) {
+        dependencyWatcher(data) {
             clearTimeout(this.watcherDebounce);
-            
+
             this.watcherDebounce = setTimeout(() => {
-                if (value === this.dependsOnValue) {
+                if (data.value === this.dependsOnValue) {
                     return;
                 }
 
-                this.dependsOnValue = value;
-                this.getDevelopmentOptions(value)
+                this.dependsOnValue = data.value;
+                this.getDevelopmentOptions(data.value)
 
                 this.watcherDebounce = null;
             }, this.watcherDebounceTimeout);

@@ -13508,22 +13508,35 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         };
     },
     created: function created() {
+        var _this = this;
+
         if (this.resourceName === 'properties' && this.field.attribute === 'nearby_facility_checkboxes') this.registerDependencyWatchers(this.$root);
+
+        this.options = Object.keys(this.field.options).map(function (key) {
+            return { id: key, value: _this.field.options[key] };
+        });
+
+        this.options.sort(function (a, b) {
+            var x = a.value.toLowerCase();
+            var y = b.value.toLowerCase();
+            return x < y ? -1 : x > y ? 1 : 0;
+        });
     },
 
 
     methods: {
         registerDependencyWatchers: function registerDependencyWatchers(root) {
-            var _this = this;
+            var _this2 = this;
 
             root.$children.forEach(function (component) {
-                if (_this.componentIsDependency(component)) {
+                if (_this2.componentIsDependency(component)) {
                     if (component.selectedResourceId !== undefined) {
+
                         // BelongsTo field
-                        component.$watch('selectedResourceId', _this.dependencyWatcher);
+                        component.$watch('selectedResource', _this2.dependencyWatcher);
                     }
                 }
-                _this.registerDependencyWatchers(component);
+                _this2.registerDependencyWatchers(component);
             });
         },
         componentIsDependency: function componentIsDependency(component) {
@@ -13533,20 +13546,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
             return component.field.attribute === 'development';
         },
-        dependencyWatcher: function dependencyWatcher(value) {
-            var _this2 = this;
+        dependencyWatcher: function dependencyWatcher(data) {
+            var _this3 = this;
 
             clearTimeout(this.watcherDebounce);
 
             this.watcherDebounce = setTimeout(function () {
-                if (value === _this2.dependsOnValue) {
+                if (data.value === _this3.dependsOnValue) {
                     return;
                 }
 
-                _this2.dependsOnValue = value;
-                _this2.getDevelopmentOptions(value);
+                _this3.dependsOnValue = data.value;
+                _this3.getDevelopmentOptions(data.value);
 
-                _this2.watcherDebounce = null;
+                _this3.watcherDebounce = null;
             }, this.watcherDebounceTimeout);
         },
         isChecked: function isChecked(option) {
@@ -13588,24 +13601,24 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.value = value;
         },
         getDevelopmentOptions: function getDevelopmentOptions(developmentId) {
-            var _this3 = this;
+            var _this4 = this;
 
             Nova.request('/api/developments/' + developmentId + '/facilities?type=Nearby').then(function (data) {
                 //Remove pre-checked of checkboxes
-                if (_this3.developmentOptions) {
-                    var optionDifference = _this3.value.filter(function (value) {
-                        return !_this3.developmentOptions.includes(value);
+                if (_this4.developmentOptions) {
+                    var optionDifference = _this4.value.filter(function (value) {
+                        return !_this4.developmentOptions.includes(value);
                     });
-                    _this3.value = optionDifference;
+                    _this4.value = optionDifference;
                 }
 
                 //Update development options
-                _this3.developmentOptions = data.data;
+                _this4.developmentOptions = data.data;
 
                 //Add pre-checked of checkboxes
-                if (_this3.developmentOptions) {
-                    _this3.developmentOptions = _this3.developmentOptions.map(String);
-                    _this3.value = _this3.value.concat(_this3.developmentOptions);
+                if (_this4.developmentOptions) {
+                    _this4.developmentOptions = _this4.developmentOptions.map(String);
+                    _this4.value = _this4.value.concat(_this4.developmentOptions);
                 }
             });
         },
@@ -39968,22 +39981,22 @@ var render = function() {
             staticClass: "w-full max-col-2",
             style: { columnCount: this.field.columns }
           },
-          _vm._l(_vm.field.options, function(label, option) {
+          _vm._l(_vm.options, function(option) {
             return _c(
               "div",
-              { key: option, staticClass: "flex mb-2" },
+              { key: option.id, staticClass: "flex mb-2" },
               [
                 _c("checkbox", {
                   staticClass: "mr-2",
-                  class: _vm.isDisabled(option) ? "text-gray" : "",
+                  class: _vm.isDisabled(option.id) ? "text-gray" : "",
                   attrs: {
-                    value: option,
-                    checked: _vm.isChecked(option),
-                    disabled: _vm.isDisabled(option)
+                    value: option.id,
+                    checked: _vm.isChecked(option.id),
+                    disabled: _vm.isDisabled(option.id)
                   },
                   on: {
                     input: function($event) {
-                      return _vm.toggleOption(option)
+                      return _vm.toggleOption(option.id)
                     }
                   }
                 }),
@@ -39991,10 +40004,10 @@ var render = function() {
                 _c("label", {
                   staticClass: "w-full leading-tight",
                   attrs: { for: _vm.field.name },
-                  domProps: { textContent: _vm._s(label) },
+                  domProps: { textContent: _vm._s(option.value) },
                   on: {
                     click: function($event) {
-                      return _vm.toggleOption(option)
+                      return _vm.toggleOption(option.id)
                     }
                   }
                 })
