@@ -13557,7 +13557,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 }
 
                 _this3.dependsOnValue = data.value;
-                _this3.getDevelopmentOptions(data.value);
+                if (data.value !== undefined) _this3.getDevelopmentOptions(data.value);else _this3.developmentOptions = [];
 
                 _this3.watcherDebounce = null;
             }, this.watcherDebounceTimeout);

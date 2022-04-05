@@ -99,7 +99,10 @@ export default {
                 }
 
                 this.dependsOnValue = data.value;
-                this.getDevelopmentOptions(data.value)
+                if(data.value !== undefined) 
+                    this.getDevelopmentOptions(data.value)
+                else
+                    this.developmentOptions = []
 
                 this.watcherDebounce = null;
             }, this.watcherDebounceTimeout);
