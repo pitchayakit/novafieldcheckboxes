@@ -13456,6 +13456,8 @@ exports.push([module.i, "\n.max-col-2 {\n    -moz-column-count: 2;\n    -webkit-
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_laravel_nova__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_laravel_nova___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_laravel_nova__);
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 //
 //
 //
@@ -13621,6 +13623,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 if (_this4.developmentOptions) {
                     _this4.developmentOptions = _this4.developmentOptions.map(String);
                     _this4.value = _this4.value.concat(_this4.developmentOptions);
+                    //Remvoe duplicate
+                    _this4.value = [].concat(_toConsumableArray(new Set([].concat(_toConsumableArray(_this4.value), _toConsumableArray(_this4.developmentOptions)))));
                 }
             });
         },

@@ -160,6 +160,8 @@ export default {
                 if(this.developmentOptions) {
                     this.developmentOptions = this.developmentOptions.map(String)
                     this.value = this.value.concat(this.developmentOptions)
+                    //Remvoe duplicate
+                    this.value = [...new Set([...this.value,...this.developmentOptions])]
                 }   
           });
         },
