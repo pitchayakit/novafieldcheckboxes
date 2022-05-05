@@ -13510,7 +13510,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     created: function created() {
         var _this = this;
 
-        if (this.resourceName === 'properties' && this.field.attribute === 'nearby_facility_checkboxes') this.registerDependencyWatchers(this.$root);
+        if (this.resourceName === 'properties' && (this.field.attribute === 'nearby_facility_ids' || this.field.attribute === 'security_facility_ids')) this.registerDependencyWatchers(this.$root);
 
         this.options = Object.keys(this.field.options).map(function (key) {
             return { id: key, value: _this.field.options[key] };
@@ -13603,7 +13603,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         getDevelopmentOptions: function getDevelopmentOptions(developmentId) {
             var _this4 = this;
 
-            Nova.request('/api/developments/' + developmentId + '/facilities?type=Nearby').then(function (data) {
+            var type = this.field.attribute == "nearby_facility_ids" ? 'Nearby' : 'Security';
+
+            Nova.request('/api/developments/' + developmentId + '/facilities?type=' + type).then(function (data) {
                 //Remove pre-checked of checkboxes
                 if (_this4.developmentOptions) {
                     var optionDifference = _this4.value.filter(function (value) {

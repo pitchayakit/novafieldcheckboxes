@@ -51,7 +51,7 @@ export default {
     },
 
     created () {
-        if(this.resourceName === 'properties' && this.field.attribute === 'nearby_facility_checkboxes')
+        if(this.resourceName === 'properties' && (this.field.attribute === 'nearby_facility_ids' || this.field.attribute === 'security_facility_ids'))
             this.registerDependencyWatchers(this.$root);
 
         this.options = Object.keys(
@@ -144,7 +144,9 @@ export default {
         },
 
         getDevelopmentOptions(developmentId) {
-            Nova.request(`/api/developments/${developmentId}/facilities?type=Nearby`).then((data) => {
+            let type = this.field.attribute == "nearby_facility_ids" ? 'Nearby' : 'Security';
+
+            Nova.request(`/api/developments/${developmentId}/facilities?type=${type}`).then((data) => {
                 //Remove pre-checked of checkboxes
                 if(this.developmentOptions) {
                     let optionDifference = this.value.filter(value => !this.developmentOptions.includes(value));
