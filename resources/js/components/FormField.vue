@@ -146,7 +146,7 @@ export default {
         getDevelopmentOptions(developmentId) {
             let type = this.field.attribute == "nearby_facility_ids" ? 'Nearby' : 'Security';
 
-            Nova.request(`/api/developments/${developmentId}/facilities?type=${type}`).then((data) => {
+            Nova.request(`/nova-vendor/api/developments/${developmentId}/facilities?type=${type}`).then((data) => {
                 //Remove pre-checked of checkboxes
                 if(this.developmentOptions) {
                     let optionDifference = this.value.filter(value => !this.developmentOptions.includes(value));

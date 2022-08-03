@@ -13607,7 +13607,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
             var type = this.field.attribute == "nearby_facility_ids" ? 'Nearby' : 'Security';
 
-            Nova.request('/api/developments/' + developmentId + '/facilities?type=' + type).then(function (data) {
+            Nova.request('/nova-vendor/api/developments/' + developmentId + '/facilities?type=' + type).then(function (data) {
                 //Remove pre-checked of checkboxes
                 if (_this4.developmentOptions) {
                     var optionDifference = _this4.value.filter(function (value) {
